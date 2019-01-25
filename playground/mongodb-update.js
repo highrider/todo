@@ -14,28 +14,36 @@ MongoClient.connect('mongodb://localhost:27017/TodoApp', (err, client) => {
     console.log('connected to mongoDB server');
     
     const db = client.db('TodoApp');//делаем сокращение, чтобы проще было манипулировать клиентом базы данных TodoApp
-    
-    //deleteMany
-    // db.collection('Todos').deleteMany({text: 'go to work'}).then((result) => {
+    // db.collection('Todos').findOneAndUpdate({
+    //     _id: new ObjectID('5c4acc299d1d1128bfaef2be')
+    // }, {
+    //     $set: {
+    //         completed: true
+    //     }
+    // }, {
+    //         returnOriginal: false
+    //     }).then((result) => {
     //     console.log(result);
     // });
+//здесь мы юзаем findOneAndUpdate, чтобы найти нашу запись, затем следующий аргумент это объект, в котором есть свойство
+//$set , в которое в нашем случае мы записывает completed: true, сюда мы вводим то, что хотим изменить в документе
+//следующий объект, это опции, в данном случае returnOriginal, возвращает оригинальный объект если тру, иначе обновленный документ
 
-    //deleteOne
-    // db.collection('Todos').deleteOne({text : "Eat a lunch"}).then((result) => {
-    //     console.log(result);
-    // });
+db.collection('Users').findOneAndUpdate({
+    _id: new ObjectID('5c48a073ae69f2202054fc02')
+}, {
+    $set: {
+        name: "Peter"
+    },
+    $inc: {
+        age: 1
+    }
+}, {
+    returnOriginal: false
+}).then((result) => {
+    console.log(result);
+});
 
-    //findOneAndDelete
-    // db.collection('Todos').findOneAndDelete({completed: false}).then((result) =>{
-    //     console.log(result);
-    // });
-
-    db.collection('Users').deleteMany({name: 'Pavel'}).then((result) => {
-        console.log(result);
-    });
-    db.collection('Users').findOneAndDelete({_id: new ObjectID("5c48bbcf51e597223060b0d8")}).then((result) => {
-        console.log(JSON.stringify(result, undefined, 2));
-    });
 
     // client.close();//закрывает соединение с сервером
 });
