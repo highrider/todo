@@ -49,6 +49,27 @@ app.get('/todos', (req, res) => {
   });
 });
 
+app.delete('/todos/:id', (req, res) => {
+  //для начала получим наш айди
+  let id = req.params.id;//это наш айди, который идет вместе с телом запроса, он в параметрах запроса
+    //валидируем наш айди,  не валидный - вернем 404
+  if(!ObjectId.isValid(id)) {
+    return res.status(404).send();
+  }
+  //remove todo by id
+  Todo.findByIdAndRemove(id).then((todo) => {
+    //success
+    //if no doc res 400
+    if(!todo){
+      res.status(404).send();
+    }
+    res.status(200).send(todo);
+  }).catch((e) => {
+    res.status(400).send(e);
+  });
+});
+
+
 app.listen(port, () => {
   console.log(`Server is started up in port ${port}`);
 });
