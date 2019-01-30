@@ -1,5 +1,7 @@
 const expect = require('expect');
 const request = require('supertest');
+const _ = require('lodash');
+
 
 const {app} = require('./../server');
 const {Todo} = require('./../models/todo');
@@ -100,4 +102,55 @@ describe('GET /todos/:id', () => {//это наш тест кейс с назв�
       .end(done)
   });
 });
+
+describe('DELETE /todos/:id/', () => {
+  it('should remove a todo', (done) => {
+    let hexId = todos[1]._id.toHexString();
+
+    request(app)
+    .delete(`/todos/${hexId}`)
+    .expect(200)
+    .expect((res) => {
+      expect(res.body.todo._id).toBe(hexId);
+    })
+    .end((err, res) => {
+      if(err) {
+        return done(err);
+      }
+      Todo.findById(hexId).then((todo) => {
+        expect(todo).toNotExist();
+        done();
+      }).catch((e) => done(e));
+    });
+  });
+  it('should return 404 if todo not found', (done) => {
+    let hexId = new ObjectId().toHexString();
+    request(app)
+    .delete(`/todos/${hexId}`)
+    .expect(404)
+    .end(done);
+   });
+   it('should return 404 if object id is not valid', (done) => {
+    request(app)
+    .delete('/todos/1231')
+    .expect(404)
+    .end(done)
+   });
+});
+
+app.patch('/todos/:id', (req,res) => {
+  let id = req.params.id;
+  let body = _.pick(req.body, ['text', 'completed']);
+  if(!ObjectId.isValid(id)){
+    return res.status(404).send();
+  }
+
+  if(_.isBoolean(body.completed) && body.completed) {
+    body.completedAt = new Date().getTime();
+  } else{
+     body.completed = false;
+     body.completedAt = null;
+  }
+})
+
 
